@@ -1,0 +1,22 @@
+## Title: SetMaster
+## Author: Bolt-Action Balrog
+## APIVersion: 100034
+## DependsOn: LibSets LibAddonMenu-2.0
+## OptionalDependsOn: MasterMerchant
+## SavedVariables: SetMasterSavedOptions
+
+SetMasterGlobal.lua
+
+Localization/en_default.lua
+Localization/$(language).lua
+
+Options.lua
+
+PlayerSetDatabase.lua
+ChatCommands.lua
+
+UI/InventoryTooltipScript.lua
+
+UI/SetMasterInventoryTooltip.xml
+
+Startup.lua

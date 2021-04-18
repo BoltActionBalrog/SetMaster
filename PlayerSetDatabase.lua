@@ -7,7 +7,7 @@ This.SetItemIds = This.SetItemIds or nil -- Reference to LibSet's GetAllSetItemI
 This.IgnoredAccountBags = This.IgnoredAccountBags or {}
 This.SlotChangedEvent = This.SlotChangedEvent or nil
 
--- {Int Index => {Name = String, IgnoredBags = {BagId}, bLoaded, DateScanned = String}}
+-- {Int Index => {Name = String, IgnoredBags = {BagId}, DateScanned = String}}
 This.Characters = {}
 
 local CharacterBagConsts
@@ -38,7 +38,7 @@ local function SanitizeCharacterName(CharacterName)
 	return string.gsub(CharacterName, "%^.*", "") 
 end
 
-function This:GetCharacterName(Character)
+function This.GetCharacterName(Character)
 	return SanitizeCharacterName(Character.Name)
 end
 
@@ -69,7 +69,7 @@ end
 function This:LoadCharacters()
 	for CharacterIndex in SetMasterGlobal.Range(1, GetNumCharacters()) do
 	local Name, _, _, _, _, _, CharacterId, _ = GetCharacterInfo(CharacterIndex)
-		local CharacterData = {Name = Name, IgnoredBags = {}, bLoaded = false} -- TODO: Support character bag ignoring
+		local CharacterData = {Name = Name, IgnoredBags = {}} -- TODO: Support character bag ignoring
 		self.Characters[CharacterId] = CharacterData
 	end
 end
@@ -94,7 +94,7 @@ function This:GetBagOwnerString(BagId)
 	end
 	local CurrentCharacterId = GetCurrentCharacterId()
 	local CurrentCharacter = self.Characters[CurrentCharacterId]
-	return self:GetCharacterName(CurrentCharacter)
+	return self.GetCharacterName(CurrentCharacter)
 end
 
 function This:RemoveItem(BagId, SlotIndex, ItemLink)
@@ -252,7 +252,7 @@ function This:LoadCurrentCharacterSetItems()
 		return
 	end
 	
-	local SanitizedCharacterName = self:GetCharacterName(CurrentCharacter)
+	local SanitizedCharacterName = self.GetCharacterName(CurrentCharacter)
 	
 	self:ClearOwnerData(SanitizedCharacterName)
 	
@@ -275,10 +275,19 @@ function This:Initialize()
 	self:LoadAccountBags()
 	self.SetItemIds = LibSets.GetAllSetItemIds()
 	
-	-- Delete any character's data that itself got deleted
+	local CurrentCharacterId = GetCurrentCharacterId()
 	for CharacterId, CharacterData in pairs(OldCharacters) do
-		if self.Characters[CharacterId] == nil then
-			self:ClearOwnerData(self:GetCharacterName(CharacterData))
+		local NewCharacterEntry = self.Characters[CharacterId]
+		if NewCharacterEntry == nil then
+			-- Delete any character's data that itself got deleted
+			self:ClearOwnerData(self.GetCharacterName(CharacterData))
+		else
+			if CharacterId ~= CurrentCharacterId then
+				-- Copy the data from the old character entry that isn't rebuilt upon loading a different character
+				NewCharacterEntry.DateScanned = CharacterData.DateScanned
+			end
+			
+			NewCharacterEntry.IgnoredBags = CharacterData.IgnoredBags
 		end
 	end
 	

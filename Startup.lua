@@ -18,7 +18,7 @@ local function InitalizeIfEverythingLoaded()
 	if not LibSets or not LibSets.checkIfSetsAreLoadedProperly() then
 		DependenciesRetryCount = DependenciesRetryCount + 1
 		if DependenciesRetryCount >= MaxDependenciesRetryCount then
-			d("Failed to load dependencies!")
+			d("Failed to load LibSets!")
 			return
 		end
 		

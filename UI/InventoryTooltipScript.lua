@@ -653,22 +653,25 @@ function This:BuildSetInfo()
 	end
 	
 	local Database = PlayerSetDatabase.ItemDatabase
+	local IsBagIgnored = PlayerSetDatabase.IsBagIgnored
 	self:ResetSetInfo()
 	for ItemId, _ in pairs(SetItemIds) do
 		local OwnedItemEntry = Database[ItemId]
 		if OwnedItemEntry ~= nil then
 			for Owner, BagList in pairs(OwnedItemEntry) do
 				for BagId, ItemLinks in pairs(BagList) do
-					for _, ItemInfo in pairs(ItemLinks) do
-						local EquipCategory, DisplayIcon = self:GetDisplayCategory(ItemInfo.ItemLink)
-						local TypeTable = self.SetInfo[EquipCategory]
-						TypeTable.Count = TypeTable.Count + 1
-						
-						local Trait = GetItemLinkTraitType(ItemInfo.ItemLink)
-						TypeTable.Traits[Trait] = TypeTable.Traits[Trait] or {Count = 0, Items = {}}
-						local TypeTraitTable = TypeTable.Traits[Trait]
-						table.insert(TypeTraitTable.Items, ItemInfo.ItemLink)
-						TypeTraitTable.Count = TypeTraitTable.Count + 1
+					if IsBagIgnored(PlayerSetDatabase, BagId, Owner) == false then
+						for _, ItemInfo in pairs(ItemLinks) do
+							local EquipCategory, DisplayIcon = self:GetDisplayCategory(ItemInfo.ItemLink)
+							local TypeTable = self.SetInfo[EquipCategory]
+							TypeTable.Count = TypeTable.Count + 1
+							
+							local Trait = GetItemLinkTraitType(ItemInfo.ItemLink)
+							TypeTable.Traits[Trait] = TypeTable.Traits[Trait] or {Count = 0, Items = {}}
+							local TypeTraitTable = TypeTable.Traits[Trait]
+							table.insert(TypeTraitTable.Items, ItemInfo.ItemLink)
+							TypeTraitTable.Count = TypeTraitTable.Count + 1
+						end
 					end
 				end
 			end

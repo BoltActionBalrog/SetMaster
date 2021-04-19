@@ -7,8 +7,11 @@ This.SetItemIds = This.SetItemIds or nil -- Reference to LibSet's GetAllSetItemI
 This.IgnoredAccountBags = This.IgnoredAccountBags or {}
 This.SlotChangedEvent = This.SlotChangedEvent or nil
 
--- {Int Index => {Name = String, IgnoredBags = {BagId}, DateScanned = String}}
+-- {String Id => {Name = String, IgnoredBags = {BagId}, DateScanned = String}}
 This.Characters = {}
+
+-- {String SanitizedName => String Id}
+local SanitizedCharacterNames = {}
 
 local CharacterBagConsts
 local AccountBagConsts
@@ -80,6 +83,16 @@ end
 
 function This.IsAccountBagIgnored(BagId)
 	return This.IgnoredAccountBags[BagId] ~= nil
+end
+
+function This:IsBagIgnored(BagId, OwnerString)
+	local CharacterId = SanitizedCharacterNames[OwnerString]
+	if CharacterId ~= nil then
+		local CharacterData = self.Characters[CharacterId]
+		return self.IsCharacterBagIgnored(CharacterData, BagId)
+	else
+		return self.IsAccountBagIgnored(BagId)
+	end
 end
 
 local function AddBagCacheEntry(BagId, SlotIndex, ItemLink)
@@ -287,6 +300,12 @@ function This:Initialize()
 	end
 	
 	SetMasterOptions:GetOptions().Characters = self.Characters -- Save the new character list
+	
+	-- Save a lookup table from character name to character id.
+	for CharacterId, CharacterData in pairs(self.Characters) do
+		local SanitizedName = self.GetCharacterName(CharacterData)
+		SanitizedCharacterNames[SanitizedName] = CharacterId
+	end
 	
 	self:LoadCurrentCharacterSetItems()
 	self:LoadAccountBags()

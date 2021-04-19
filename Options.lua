@@ -65,6 +65,18 @@ function This:Initialize()
 	self.Saved = ZO_SavedVars:NewAccountWide("SetMasterSavedOptions", SetMasterGlobal.SaveDataVersion, nil, self.Defaults)
 end
 
+local function GetCharacterBagUsed(CharacterData, BagId)
+	return PlayerSetDatabase.IsCharacterBagIgnored(CharacterData, BagId) == false
+end
+
+local function SetCharacterBagUsed(CharacterData, BagId, bUseBag)
+	if bUseBag == true then
+		CharacterData.IgnoredBags[BagId] = nil
+	else
+		CharacterData.IgnoredBags[BagId] = true
+	end
+end
+
 local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, CharacterSubmenuControls)
 	table.insert(CharacterSubmenuControls, {
 			type = "header",
@@ -83,6 +95,30 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 			end)(),
 			width = "full",
 		})
+	table.insert(CharacterSubmenuControls, {
+		type = "checkbox",
+		name = "Equipped",
+		tooltip = "Display items equipped this character.",
+		getFunc = function() 
+			return GetCharacterBagUsed(CharacterData, BAG_WORN)
+		end,
+		setFunc = function(Value) 
+			SetCharacterBagUsed(CharacterData, BAG_WORN, Value)
+		end,
+		width = "half",
+	})
+	table.insert(CharacterSubmenuControls, {
+		type = "checkbox",
+		name = "Backpack",
+		tooltip = "Display items in this character's backpack",
+		getFunc = function() 
+			return GetCharacterBagUsed(CharacterData, BAG_BACKPACK)
+		end,
+		setFunc = function(Value) 
+			SetCharacterBagUsed(CharacterData, BAG_BACKPACK, Value)
+		end,
+		width = "half",
+	})
 end
 
 function This:Finalize()

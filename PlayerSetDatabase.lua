@@ -74,11 +74,11 @@ function This:LoadCharacters()
 	end
 end
 
-local function IsCharacterBagIgnored(Character, BagId)
+function This.IsCharacterBagIgnored(Character, BagId)
 	return Character.IgnoredBags[BagId] ~= nil
 end
 
-local function IsAccountBagIgnored(BagId)
+function This.IsAccountBagIgnored(BagId)
 	return This.IgnoredAccountBags[BagId] ~= nil
 end
 
@@ -227,7 +227,7 @@ function This:LoadAccountBags()
 	self:ClearOwnerData(AccountOwnerName)
 	
 	for _, AccountBagId in ipairs(AccountBagConsts) do
-		if IsAccountBagIgnored(AccountBagId) == false then
+		if self.IsAccountBagIgnored(AccountBagId) == false then
 			LoadBag(AccountBagId, AccountOwnerName)
 		end
 	end
@@ -238,7 +238,7 @@ function This:LoadHouseBags()
 	self:ClearOwnerData(HouseOwnerName)
 	
 	for _, HouseBagId in ipairs(HouseBagConsts) do
-		if IsAccountBagIgnored(HouseBagId) == false then
+		if self.IsAccountBagIgnored(HouseBagId) == false then
 			LoadBag(HouseBagId, HouseOwnerName)
 		end
 	end
@@ -257,9 +257,7 @@ function This:LoadCurrentCharacterSetItems()
 	self:ClearOwnerData(SanitizedCharacterName)
 	
 	for _, CharacterBagId in ipairs(CharacterBagConsts) do
-		if IsCharacterBagIgnored(CurrentCharacter, CharacterBagId) == false then
-			LoadBag(CharacterBagId, SanitizedCharacterName)
-		end
+		LoadBag(CharacterBagId, SanitizedCharacterName)
 	end
 	
 	CurrentCharacter.DateScanned = SetMasterGlobal.GetDateDisplayString()
@@ -271,9 +269,6 @@ function This:Initialize()
 	
 	PopulateBagValues()
 	self:LoadCharacters()
-	self:LoadCurrentCharacterSetItems()
-	self:LoadAccountBags()
-	self.SetItemIds = LibSets.GetAllSetItemIds()
 	
 	local CurrentCharacterId = GetCurrentCharacterId()
 	for CharacterId, CharacterData in pairs(OldCharacters) do
@@ -292,6 +287,10 @@ function This:Initialize()
 	end
 	
 	SetMasterOptions:GetOptions().Characters = self.Characters -- Save the new character list
+	
+	self:LoadCurrentCharacterSetItems()
+	self:LoadAccountBags()
+	self.SetItemIds = LibSets.GetAllSetItemIds()
 	
 	-- House bags are only available inside of a house. Would be nice TODO: figure out how to register for entering a house.
 	local OpenHouseStoreEventName = "OnOpenHouseStore"

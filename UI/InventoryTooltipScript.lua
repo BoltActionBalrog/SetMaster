@@ -679,6 +679,50 @@ function This:BuildSetInfo()
 	end
 end
 
+function This:BuildTraitPopup(TraitItemLinks, TargetTraitValue)
+								-- {ItemId -> Icon}
+	local ItemCategories = {} 	-- All unique item ids represented. Might be representing one-handed axes + swords, for example.
+	for _, Link in ipairs(TraitItemLinks) do
+		local ItemId = GetItemLinkItemId(Link)
+		ItemCategories[ItemId] = ItemCategories[ItemId] or {}
+		ItemCategories[ItemId].Icon = GetItemLinkIcon(Link)
+		ItemCategories[ItemId].ItemLink = Link
+	end
+	
+	local OwnerInfo = {}
+	local IsBagIgnored = PlayerSetDatabase.IsBagIgnored
+	for ItemId, _ in pairs(ItemCategories) do
+		local OwnerList = PlayerSetDatabase.ItemDatabase[ItemId]
+		OwnerInfo[ItemId] = {}
+		local OwnerItemEntry = OwnerInfo[ItemId]
+		for OwnerName, BagList in pairs(OwnerList) do
+			OwnerItemEntry[OwnerName] = OwnerItemEntry[OwnerName] or {}
+			local OwnerTable = OwnerItemEntry[OwnerName]
+			for BagId, ItemLinks in pairs(BagList) do
+				if IsBagIgnored(PlayerSetDatabase, BagId, OwnerName) == false then
+					local DisplayBagId = BagId
+					if BagId == BAG_SUBSCRIBER_BANK then
+						-- Show subscriber bank items with regular bank items
+						DisplayBagId = BAG_BANK
+					end
+					
+					for _, ItemLink in pairs(ItemLinks) do
+						if GetItemLinkTraitType(ItemLink.ItemLink) == TargetTraitValue then
+							OwnerTable[DisplayBagId] = OwnerTable[DisplayBagId] or {}
+							local BagTable = OwnerTable[DisplayBagId]
+							local ItemQuality = GetItemLinkQuality(ItemLink.ItemLink)
+							BagTable[ItemQuality] = BagTable[ItemQuality] or 0
+							BagTable[ItemQuality] = BagTable[ItemQuality] + 1
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	return ItemCategories, OwnerInfo
+end
+
 function This:BuildTooltip()
 	self:ReleaseSetPieceEntries()
 	self:ReleaseTraitEntries()
@@ -903,43 +947,7 @@ function This:ShowTraitPopup(TraitControl)
 	
 	self.TraitPopup:SetHeight(1)
 	
-						-- {ItemId -> Icon}
-	local ItemCategories = {} 	-- All unique item ids represented. Might be representing one-handed axes + swords, for example.
-	for _, Link in ipairs(TraitItemLinks) do
-		local ItemId = GetItemLinkItemId(Link)
-		ItemCategories[ItemId] = ItemCategories[ItemId] or {}
-		ItemCategories[ItemId].Icon = GetItemLinkIcon(Link)
-		ItemCategories[ItemId].ItemLink = Link
-	end
-	
-	-- ItemId -> {OwnerName -> {BagId -> {Quality -> Count}}}
-	local OwnerInfo = {}
-	for ItemId, _ in pairs(ItemCategories) do
-		local OwnerList = PlayerSetDatabase.ItemDatabase[ItemId]
-		OwnerInfo[ItemId] = {}
-		local OwnerItemEntry = OwnerInfo[ItemId]
-		for OwnerName, BagList in pairs(OwnerList) do
-			OwnerItemEntry[OwnerName] = OwnerItemEntry[OwnerName] or {}
-			local OwnerTable = OwnerItemEntry[OwnerName]
-			for BagId, ItemLinks in pairs(BagList) do
-				local DisplayBagId = BagId
-				if BagId == BAG_SUBSCRIBER_BANK then
-					-- Show subscriber bank items with regular bank items
-					DisplayBagId = BAG_BANK
-				end
-				
-				for _, ItemLink in pairs(ItemLinks) do
-					if GetItemLinkTraitType(ItemLink.ItemLink) == TraitValue then
-						OwnerTable[DisplayBagId] = OwnerTable[DisplayBagId] or {}
-						local BagTable = OwnerTable[DisplayBagId]
-						local ItemQuality = GetItemLinkQuality(ItemLink.ItemLink)
-						BagTable[ItemQuality] = BagTable[ItemQuality] or 0
-						BagTable[ItemQuality] = BagTable[ItemQuality] + 1
-					end
-				end
-			end
-		end
-	end
+	local ItemCategories, OwnerInfo = self:BuildTraitPopup(TraitItemLinks, TraitValue)
 	
 	local PreviousItemEntry = nil
 	for ItemId, ItemInfo in pairs(ItemCategories) do

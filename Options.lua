@@ -29,7 +29,8 @@ local Panel = {
 
 local OptionIndicies = {
 	Colorblind = 1,
-	CharacterData = 2
+	CharacterData = 2,
+	AccountData = 3,
 }
 
 local Options = {
@@ -50,9 +51,17 @@ local Options = {
 		name = "Character Data",
 		tooltip = "Managed the saved inventory data of each of your characters.",
 		controls = {
-			-- Populated dynamically
+			-- Populated at runtime
 		}
-	}
+	},
+	[OptionIndicies.AccountData] = {
+		type = "submenu",
+		name = "Account Data",
+		tooltip = "Managed the data of items in your account-wide bags.",
+		controls = {
+			-- Populated at runtime
+		}
+	},
 }
 
 function This:Initialize()
@@ -61,8 +70,21 @@ function This:Initialize()
 	Defaults.bSmartAnchored = true
 	Defaults.ItemDatabase = {}
 	Defaults.Characters = {}
+	Defaults.AccountBagsIgnored = {}
 	
 	self.Saved = ZO_SavedVars:NewAccountWide("SetMasterSavedOptions", SetMasterGlobal.SaveDataVersion, nil, self.Defaults)
+end
+
+local function GetAccountBagUsed(BagId)
+	return PlayerSetDatabase.IsAccountBagIgnored(BagId) == false
+end
+
+local function SetAccountBagUsed(BagId, bUseBag)
+	if bUseBag == true then
+		PlayerSetDatabase.IgnoredAccountBags[BagId] = nil
+	else
+		PlayerSetDatabase.IgnoredAccountBags[BagId] = true
+	end
 end
 
 local function GetCharacterBagUsed(CharacterData, BagId)
@@ -114,16 +136,31 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 		getFunc = function() 
 			return GetCharacterBagUsed(CharacterData, BAG_BACKPACK)
 		end,
-		setFunc = function(Value) 
-			SetCharacterBagUsed(CharacterData, BAG_BACKPACK, Value)
+		setFunc = function(bValue) 
+			SetCharacterBagUsed(CharacterData, BAG_BACKPACK, bValue)
 		end,
 		width = "half",
 	})
 end
 
+local function CreateAccountMenuEntries(AccountSubmenuControls)
+	table.insert(AccountSubmenuControls, {
+		type = "checkbox",
+		name = "Bank",
+		tooltip = "Display items stored in your account's bank.",
+		getFunc = function()
+			return GetAccountBagUsed(BAG_BANK)
+		end,
+		setFunc = function(bValue)
+			SetAccountBagUsed(BAG_BANK, bValue)
+			SetAccountBagUsed(BAG_SUBSCRIBER_BANK, bValue)
+		end,
+		width = "half"
+	})
+end
+
 function This:Finalize()
 	local Characters = PlayerSetDatabase.Characters
-	local CharacterDataSubmenu = Options[OptionIndicies.CharacterData]
 	
 	-- Sort characters by character id so there's a deterministic ordering in the menu
 	local CharacterIds = {}
@@ -134,10 +171,14 @@ function This:Finalize()
 		return tonumber(a) < tonumber(b)
 	end)
 	
+	local CharacterDataSubmenu = Options[OptionIndicies.CharacterData]
 	for _, CharacterId in ipairs(CharacterIds) do
 		local CharacterData = Characters[CharacterId]
 		CreateCharacterMenuEntry(CharacterId, CharacterData, CharacterDataSubmenu.controls)
 	end
+	
+	local AccountDataSubmenu = Options[OptionIndicies.AccountData]
+	CreateAccountMenuEntries(AccountDataSubmenu.controls)
 
 	local AddonMenu = LibAddonMenu2
 	AddonMenu:RegisterAddonPanel(NameLocalized, Panel)

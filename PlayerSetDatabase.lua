@@ -13,8 +13,8 @@ This.Characters = {}
 -- {String SanitizedName => String Id}
 local SanitizedCharacterNames = {}
 
-local CharacterBagConsts
-local AccountBagConsts
+local CharacterBagConsts = {BAG_BACKPACK, BAG_WORN}
+local AccountBagConsts = {BAG_BANK, BAG_SUBSCRIBER_BANK}
 local HouseBagConsts
 
 function This:IsAccountBag(BagId)
@@ -46,8 +46,6 @@ function This.GetCharacterName(Character)
 end
 
 local function PopulateBagValues()
-	CharacterBagConsts = {BAG_BACKPACK, BAG_WORN}
-	AccountBagConsts = {BAG_BANK, BAG_SUBSCRIBER_BANK, BAG_GUILDBANK}
 	HouseBagConsts = {}
 	for HouseBankId in SetMasterGlobal.Range(BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN) do
 		table.insert(HouseBagConsts, HouseBankId)
@@ -72,9 +70,13 @@ end
 function This:LoadCharacters()
 	for CharacterIndex in SetMasterGlobal.Range(1, GetNumCharacters()) do
 	local Name, _, _, _, _, _, CharacterId, _ = GetCharacterInfo(CharacterIndex)
-		local CharacterData = {Name = Name, IgnoredBags = {}} -- TODO: Support character bag ignoring
+		local CharacterData = {Name = Name, IgnoredBags = {}}
 		self.Characters[CharacterId] = CharacterData
 	end
+end
+
+function This:LoadAccountBagsIgnored()
+	self.IgnoredAccountBags = SetMasterOptions:GetOptions().AccountBagsIgnored
 end
 
 function This.IsCharacterBagIgnored(Character, BagId)
@@ -306,6 +308,8 @@ function This:Initialize()
 		local SanitizedName = self.GetCharacterName(CharacterData)
 		SanitizedCharacterNames[SanitizedName] = CharacterId
 	end
+	
+	self:LoadAccountBagsIgnored()
 	
 	self:LoadCurrentCharacterSetItems()
 	self:LoadAccountBags()

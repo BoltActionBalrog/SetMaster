@@ -554,7 +554,6 @@ function This:CreateSetPieceEntry(EntryNumber, PreviousEntry, Container, bAnchor
 			end
 			
 			for Index, Slot in ipairs(SlotTable.Slots) do
-				-- TODO: This isn't showing
 				local AbbreviationElement
 				if Index == 1 then
 					AbbreviationElement = HeavyAbbreviation
@@ -1011,12 +1010,11 @@ function This:OnInventoryChanged()
 end
 
 function This:OnItemDataAdded(Control, TooltipEventNumber)
-	-- TODO: Flames of Ambition broke this. Would be good to find a way to only read the moc once.
-	--if TooltipEventNumber ~= TOOLTIP_GAME_DATA_ITERATION_END then
-		-- Tooltip isn't done firing events. Not sure what the significance of multiple events is.
-	--	return
-	--end
-	
+	if TooltipEventNumber ~= 8 then
+		-- The tooltip fires multiple events and always ends with event "8".
+		-- I don't know why.
+		return
+	end
 	local MouseOverItemLink, bEquipped = SetMasterGlobal.GetMouseOverItemLink()
 	self.MouseOverInstigator = moc()
 	This:SetItemLink(MouseOverItemLink, bEquipped)

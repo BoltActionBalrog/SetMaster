@@ -10,13 +10,37 @@ local Localization = {
 			Name = "Colorblind Mode",
 			Tooltip = "Enable if you are colorblind or have trouble distinguishing colors"
 		},
+		BankShow = {
+			Name = "Bank",
+			Tooltip = "Display items stored in your account's bank."
+		},
+		CharacterBags = {
+			NoData = "No data! Login to this character to load bag data.",
+			DateScanned = "Date scanned:"
+		},
+		ShowEquipped = {
+			Name = "Equipped",
+			Tooltip = "Display items equipped this character."
+		},
+		ShowBackpack = {
+			Name = "Backpack",
+			Tooltip = "Display items in this character's backpack"
+		},
+		CharacterDataSubmenu = {
+			Name = "Character Data",
+			Tooltip = "Manage the saved inventory data of each of your characters."
+		},
+		AccountDataSubmenu = {
+			Name = "Account Data",
+			Tooltip = "Manage the data of items in your account-wide bags."
+		},
 		HouseBagHeader = "House Chests",
 		Name = "Name",
 		HouseBagNameTip = "Create a helpful name for this house chest",
 		HouseBagShow = 
 		{
 			Name = "Show chest",
-			Tooltip = "Should items in this chest be displayed?"
+			Tooltip = "Display items stored in this house chest."
 		}
 	},
 	SetOwnership = 

@@ -60,16 +60,16 @@ local Options = {
 	},
 	[OptionIndicies.CharacterData] = {
 		type = "submenu",
-		name = "Character Data",
-		tooltip = "Managed the saved inventory data of each of your characters.",
+		name = Localize("Options", "CharacterDataSubmenu", "Name"),
+		tooltip = Localize("Options", "CharacterDataSubmenu", "Tooltip"),
 		controls = {
 			-- Populated at runtime
 		}
 	},
 	[OptionIndicies.AccountData] = {
 		type = "submenu",
-		name = "Account Data",
-		tooltip = "Managed the data of items in your account-wide bags.",
+		name = Localize("Options", "AccountDataSubmenu", "Name"),
+		tooltip = Localize("Options", "AccountDataSubmenu", "Tooltip"),
 		controls = {
 			-- Populated at runtime
 		}
@@ -128,16 +128,16 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 			text = (function() 
 				local DateScanned = CharacterData.DateScanned
 				if DateScanned == nil then
-					return "|c" .. NoDataColor .. "No data! Login to this character to load bag data.|"
+					return "|c" .. NoDataColor .. Localize("Options", "CharacterBags", "NoData") .. "|"
 				end
-				return "Date scanned: " .. DateScanned
+				return Localize("Options", "CharacterBags", "DateScanned") .. DateScanned
 			end)(),
 			width = "full",
 		})
 	table.insert(CharacterSubmenuControls, {
 		type = "checkbox",
-		name = "Equipped",
-		tooltip = "Display items equipped this character.",
+		name = Localize("Options", "ShowEquipped", "Name"),
+		tooltip = Localize("Options", "ShowEquipped", "Tooltip"),
 		getFunc = function() 
 			return GetCharacterBagUsed(CharacterData, BAG_WORN)
 		end,
@@ -148,8 +148,8 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 	})
 	table.insert(CharacterSubmenuControls, {
 		type = "checkbox",
-		name = "Backpack",
-		tooltip = "Display items in this character's backpack",
+		name = Localize("Options", "ShowBackpack", "Name"),
+		tooltip = Localize("Options", "ShowBackpack", "Tooltip"),
 		getFunc = function() 
 			return GetCharacterBagUsed(CharacterData, BAG_BACKPACK)
 		end,
@@ -163,8 +163,8 @@ end
 function This:CreateAccountMenuEntries(AccountSubmenuControls)
 	table.insert(AccountSubmenuControls, {
 		type = "checkbox",
-		name = "Bank",
-		tooltip = "Display items stored in your account's bank.",
+		name = Localize("Options", "BankShow", "Name"),
+		tooltip = Localize("Options", "BankShow", "Tooltip"),
 		getFunc = function()
 			return GetAccountBagUsed(BAG_BANK)
 		end,

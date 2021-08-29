@@ -191,6 +191,7 @@ function This:CreateAccountMenuEntries(AccountSubmenuControls)
 			text = HouseBagDefaultName,
 			width = "full",
 		})
+		-- Name house chest
 		table.insert(AccountSubmenuControls, {
 			type = "editbox",
 			name = Localize("Options", "Name"),
@@ -203,6 +204,19 @@ function This:CreateAccountMenuEntries(AccountSubmenuControls)
 				HouseBagDisplayNames[HouseBagId] = string.sub(NewValue, 1, MaxBagNameLength)
 			end,
 			width = "half"
+		})
+		-- Filter house chest
+		table.insert(AccountSubmenuControls, {
+			type = "checkbox",
+			name = Localize("Options", "HouseBagShow", "Name"),
+			tooltip = Localize("Options", "HouseBagShow", "Tooltip"),
+			getFunc = function() 
+				return GetAccountBagUsed(HouseBagId)
+			end,
+			setFunc = function(Value) 
+				SetAccountBagUsed(HouseBagId, Value)
+			end,
+			width = "half",
 		})
 	end
 end

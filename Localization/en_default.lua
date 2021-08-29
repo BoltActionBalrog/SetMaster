@@ -12,7 +12,12 @@ local Localization = {
 		},
 		HouseBagHeader = "House Chests",
 		Name = "Name",
-		HouseBagNameTip = "Create a helpful name for this house chest"
+		HouseBagNameTip = "Create a helpful name for this house chest",
+		HouseBagShow = 
+		{
+			Name = "Show chest",
+			Tooltip = "Should items in this chest be displayed?"
+		}
 	},
 	SetOwnership = 
 	{

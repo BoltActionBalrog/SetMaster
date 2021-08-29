@@ -92,7 +92,7 @@ function This:InitializeTextureConsts()
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_ARCANE] = "/esoui/art/icons/jewelrycrafting_trait_refined_cobalt.dds"
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_HEALTHY] = "/esoui/art/icons/jewelrycrafting_trait_refined_antimony.dds"
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_ROBUST] = "/esoui/art/icons/jewelrycrafting_trait_refined_zinc.dds"
-	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_TRIUNE] = "/esoui/art/icons/jewelrycrafting_trait_refined_dawnprism.ddscraftion"
+	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_TRIUNE] = "/esoui/art/icons/jewelrycrafting_trait_refined_dawnprism.dds"
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_INFUSED] = "/esoui/art/icons/crafting_enchantment_base_jade_r1.dds"
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_PROTECTIVE] = "/esoui/art/icons/crafting_runecrafter_armor_component_006.dds"
 	TraitTextures[ITEM_TRAIT_TYPE_JEWELRY_SWIFT] = "/esoui/art/icons/crafting_outfitter_plug_component_002.dds"

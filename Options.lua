@@ -7,8 +7,20 @@ This.Defaults = This.Defaults or {}
 
 local NoDataColor = "d64022"
 
+local MaxBagNameLength = 14
+
 function This:GetOptions()
 	return self.Saved
+end
+
+function This:GetBagDisplayName(BagId)
+	local HouseBagDisplayNames = self:GetOptions().HouseBagDisplayNames
+	local HouseBagCustomName = HouseBagDisplayNames[BagId]
+	if HouseBagCustomName ~= nil then
+		return HouseBagCustomName
+	end
+	
+	return SetMasterGlobal.Localize("BagName", BagId)
 end
 
 local Localize = SetMasterGlobal.Localize
@@ -71,6 +83,11 @@ function This:Initialize()
 	Defaults.ItemDatabase = {}
 	Defaults.Characters = {}
 	Defaults.AccountBagsIgnored = {}
+	Defaults.HouseBagDisplayNames = {}
+	local HouseBagDisplayNames = self.Defaults.HouseBagDisplayNames
+	for BagId in SetMasterGlobal.Range(BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN) do
+		HouseBagDisplayNames[BagId] = Localize("BagName", BagId)
+	end
 	
 	self.Saved = ZO_SavedVars:NewAccountWide("SetMasterSavedOptions", SetMasterGlobal.SaveDataVersion, nil, self.Defaults)
 end
@@ -143,7 +160,7 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 	})
 end
 
-local function CreateAccountMenuEntries(AccountSubmenuControls)
+function This:CreateAccountMenuEntries(AccountSubmenuControls)
 	table.insert(AccountSubmenuControls, {
 		type = "checkbox",
 		name = "Bank",
@@ -155,8 +172,39 @@ local function CreateAccountMenuEntries(AccountSubmenuControls)
 			SetAccountBagUsed(BAG_BANK, bValue)
 			SetAccountBagUsed(BAG_SUBSCRIBER_BANK, bValue)
 		end,
-		width = "half"
+		width = "full"
 	})
+	
+	table.insert(AccountSubmenuControls, {
+			type = "header",
+			name = Localize("Options", "HouseBagHeader"),
+			width = "full",
+	})
+	
+	local HouseBagDisplayNames = self:GetOptions().HouseBagDisplayNames
+	
+	for HouseBagId in SetMasterGlobal.Range(BAG_HOUSE_BANK_ONE, BAG_HOUSE_BANK_TEN) do
+		local HouseBagDefaultName = Localize("BagName", HouseBagId)
+		table.insert(AccountSubmenuControls, {
+			type = "description",
+			title = nil,
+			text = HouseBagDefaultName,
+			width = "full",
+		})
+		table.insert(AccountSubmenuControls, {
+			type = "editbox",
+			name = Localize("Options", "Name"),
+			tooltip = Localize("Options", "HouseBagNameTip"),
+			default = HouseBagDefaultName,
+			getFunc = function() 
+				return HouseBagDisplayNames[HouseBagId]
+			end,
+			setFunc = function(NewValue)
+				HouseBagDisplayNames[HouseBagId] = string.sub(NewValue, 1, MaxBagNameLength)
+			end,
+			width = "half"
+		})
+	end
 end
 
 function This:Finalize()
@@ -178,7 +226,7 @@ function This:Finalize()
 	end
 	
 	local AccountDataSubmenu = Options[OptionIndicies.AccountData]
-	CreateAccountMenuEntries(AccountDataSubmenu.controls)
+	self:CreateAccountMenuEntries(AccountDataSubmenu.controls)
 
 	local AddonMenu = LibAddonMenu2
 	AddonMenu:RegisterAddonPanel(NameLocalized, Panel)

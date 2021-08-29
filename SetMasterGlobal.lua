@@ -282,10 +282,6 @@ function This.GetHouseOwnerName()
 	return This.Localize("OwnerName", "House")
 end
 
-function This.GetBagName(BagId)
-	return This.Localize("BagName", BagId)
-end
-
 function This.GetDateDisplayString()
 	return os.date("%x")
 end

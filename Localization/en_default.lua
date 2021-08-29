@@ -9,7 +9,10 @@ local Localization = {
 		{
 			Name = "Colorblind Mode",
 			Tooltip = "Enable if you are colorblind or have trouble distinguishing colors"
-		}
+		},
+		HouseBagHeader = "House Chests",
+		Name = "Name",
+		HouseBagNameTip = "Create a helpful name for this house chest"
 	},
 	SetOwnership = 
 	{
@@ -54,16 +57,16 @@ Localization.BagName[BAG_WORN] = "Equipped"
 Localization.BagName[BAG_BANK] = "Bank"
 Localization.BagName[BAG_SUBSCRIBER_BANK] = Localization.BagName[BAG_BANK]
 Localization.BagName[BAG_GUILDBANK] = "Guild Bank"
-Localization.BagName[BAG_HOUSE_BANK_ONE] = "House 1"
-Localization.BagName[BAG_HOUSE_BANK_TWO] = "House 2"
-Localization.BagName[BAG_HOUSE_BANK_THREE] = "House 3"
-Localization.BagName[BAG_HOUSE_BANK_FOUR] = "House 4"
-Localization.BagName[BAG_HOUSE_BANK_FIVE] = "House 5"
-Localization.BagName[BAG_HOUSE_BANK_SIX] = "House 6"
-Localization.BagName[BAG_HOUSE_BANK_SEVEN] = "House 7"
-Localization.BagName[BAG_HOUSE_BANK_EIGHT] = "House 8"
-Localization.BagName[BAG_HOUSE_BANK_NINE] = "House 9"
-Localization.BagName[BAG_HOUSE_BANK_TEN] = "House 10"
+Localization.BagName[BAG_HOUSE_BANK_ONE] = "Chest 1"
+Localization.BagName[BAG_HOUSE_BANK_TWO] = "Chest 2"
+Localization.BagName[BAG_HOUSE_BANK_THREE] = "Chest 3"
+Localization.BagName[BAG_HOUSE_BANK_FOUR] = "Chest 4"
+Localization.BagName[BAG_HOUSE_BANK_FIVE] = "Chest 5"
+Localization.BagName[BAG_HOUSE_BANK_SIX] = "Chest 6"
+Localization.BagName[BAG_HOUSE_BANK_SEVEN] = "Chest 7"
+Localization.BagName[BAG_HOUSE_BANK_EIGHT] = "Chest 8"
+Localization.BagName[BAG_HOUSE_BANK_NINE] = "Chest 9"
+Localization.BagName[BAG_HOUSE_BANK_TEN] = "Chest 10"
 
 
 

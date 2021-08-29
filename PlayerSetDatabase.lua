@@ -283,6 +283,7 @@ function This:Initialize()
 	local OldCharacters = SetMasterOptions:GetOptions().Characters
 	
 	PopulateBagValues()
+	
 	self:LoadCharacters()
 	
 	local CurrentCharacterId = GetCurrentCharacterId()

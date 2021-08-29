@@ -857,7 +857,7 @@ function This:CreateTraitPopupOwnerEntry(OwningBox, PreviousEntry, OwnerName, Ba
 	local PreviousEntry = nil
 	for BagId, QualityTable in pairs(BagInfo) do
 		if not SetMasterGlobal.IsTableEmpty(QualityTable) then
-			PreviousEntry = self:CreateTraitPopupBagEntry(InfoBox, PreviousEntry, SetMasterGlobal.GetBagName(BagId), QualityTable)
+			PreviousEntry = self:CreateTraitPopupBagEntry(InfoBox, PreviousEntry, SetMasterOptions:GetBagDisplayName(BagId), QualityTable)
 		end
 	end
 	

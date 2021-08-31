@@ -631,7 +631,7 @@ function This:ResetSetInfo()
 	end
 end
 
-function This:GetDisplayCategory(ItemLink) -- TODO
+function This:GetDisplayCategory(ItemLink)
 	local WeaponType = GetItemLinkWeaponType(ItemLink)
 	local WeaponTypeDisplayIndex = self.WeaponTypeDisplayIndicies[WeaponType]
 	if WeaponTypeDisplayIndex ~= nil then
@@ -678,22 +678,87 @@ function This:BuildSetInfo()
 	end
 end
 
+function This:GetWeaponTypeIcon(ItemLink, WeaponType)
+	return self.WeaponIcons[GetItemLinkWeaponType(ItemLink)]
+end
+
+function This:SortTraitPopupItemCategories(ItemCategories, WeaponType)
+
+	local ItemIdDisplayOrder = {}
+	for ItemId, CategoryData in pairs(ItemCategories) do
+		table.insert(ItemIdDisplayOrder, ItemId)
+	end
+	
+	if WeaponType == WEAPONTYPE_NONE then
+		return ItemIdDisplayOrder
+	end
+	
+	local WeaponTypeTable = nil
+	local TableContains = SetMasterGlobal.TableContains
+	
+	if TableContains(self.DestructionStaffSlots.Slots, WeaponType) then
+		WeaponTypeTable = self.DestructionStaffSlots.Slots
+	elseif TableContains(self.OneHandedMeleeSlots.Slots, WeaponType) then
+		WeaponTypeTable = self.OneHandedMeleeSlots.Slots
+	elseif TableContains(self.TwoHandedMeleeSlots.Slots, WeaponType) then
+		WeaponTypeTable = self.TwoHandedMeleeSlots.Slots
+	end
+	
+	
+	
+	if WeaponTypeTable == nil then
+		return ItemIdDisplayOrder
+	end
+	
+	local ArrayFind = SetMasterGlobal.ArrayFind
+	table.sort(ItemIdDisplayOrder, 
+			function(a, b)
+				local WeaponTypeA = GetItemLinkWeaponType(ItemCategories[a].ItemLink)
+				local WeaponTypeB = GetItemLinkWeaponType(ItemCategories[b].ItemLink)
+				return ArrayFind(WeaponTypeTable, WeaponTypeA) < ArrayFind(WeaponTypeTable, WeaponTypeB)
+			end
+		)
+	return ItemIdDisplayOrder
+end
+
 function This:BuildTraitPopup(TraitItemLinks, TargetTraitValue)
+	local ItemIdReplacements = {} -- map the unique ItemIds to an equivalent item id.
+	-- ESO has unique ItemIds for a reconstructed item, but we want to display them together.
+	
 								-- {ItemId -> Icon}
 	local ItemCategories = {} 	-- All unique item ids represented. Might be representing one-handed axes + swords, for example.
 	for _, Link in ipairs(TraitItemLinks) do
 		local ItemId = GetItemLinkItemId(Link)
-		ItemCategories[ItemId] = ItemCategories[ItemId] or {}
-		ItemCategories[ItemId].Icon = GetItemLinkIcon(Link)
-		ItemCategories[ItemId].ItemLink = Link
+		local ItemIcon = GetItemLinkIcon(Link)
+		local bDuplicate = false
+		for SearchItemId, CategoryData in pairs(ItemCategories) do
+			if CategoryData.Icon == ItemIcon
+					and self:GetWeaponTypeIcon(Link) == self:GetWeaponTypeIcon(CategoryData.ItemLink) then
+				-- This item is a reconsutrcted varient of one we already added (or vice versa).
+				ItemIdReplacements[ItemId] = SearchItemId
+				bDuplicate = true
+			end
+		end
+		
+		if bDuplicate == false then
+			ItemIdReplacements[ItemId] = ItemId
+			ItemCategories[ItemId] = ItemCategories[ItemId] or {}
+			ItemCategories[ItemId].Icon = ItemIcon
+			ItemCategories[ItemId].ItemLink = Link
+		end
 	end
 	
 	local OwnerInfo = {}
 	local IsBagIgnored = PlayerSetDatabase.IsBagIgnored
-	for ItemId, _ in pairs(ItemCategories) do
+	for ItemId, DisplayItemId in pairs(ItemIdReplacements) do
+		
 		local OwnerList = PlayerSetDatabase.ItemDatabase[ItemId]
-		OwnerInfo[ItemId] = {}
-		local OwnerItemEntry = OwnerInfo[ItemId]
+		
+		-- Replace the ItemId if it's a reconstruced duplicate
+		local DisplayItemId = ItemIdReplacements[ItemId] or ItemId
+		
+		OwnerInfo[DisplayItemId] = OwnerInfo[DisplayItemId] or {}
+		local OwnerItemEntry = OwnerInfo[DisplayItemId]
 		for OwnerName, BagList in pairs(OwnerList) do
 			OwnerItemEntry[OwnerName] = OwnerItemEntry[OwnerName] or {}
 			local OwnerTable = OwnerItemEntry[OwnerName]
@@ -719,7 +784,14 @@ function This:BuildTraitPopup(TraitItemLinks, TargetTraitValue)
 		end
 	end
 	
-	return ItemCategories, OwnerInfo
+	local ArbitraryItemLink = TraitItemLinks[1]
+	local ItemIdDisplayOrder = {}
+	if ArbitraryItemLink ~= nil then
+		local WeaponType = GetItemLinkWeaponType(ArbitraryItemLink)
+		ItemIdDisplayOrder = self:SortTraitPopupItemCategories(ItemCategories, GetItemLinkWeaponType(ArbitraryItemLink))
+	end
+	
+	return ItemCategories, OwnerInfo, ItemIdDisplayOrder
 end
 
 function This:BuildTooltip()
@@ -883,7 +955,7 @@ function This:CreateTraitPopupItemEntry(TraitControl, PreviousEntry, ItemOwnerIn
 	
 	Icon:SetTexture(DisplayIcon)
 	
-	local TypeIconFile = self.WeaponIcons[GetItemLinkWeaponType(ItemLink)]
+	local TypeIconFile = self:GetWeaponTypeIcon(ItemLink)
 	if TypeIconFile ~= nil then
 		TypeIcon:SetTexture(TypeIconFile)
 		TypeIcon:SetHidden(false)
@@ -946,10 +1018,11 @@ function This:ShowTraitPopup(TraitControl)
 	
 	self.TraitPopup:SetHeight(1)
 	
-	local ItemCategories, OwnerInfo = self:BuildTraitPopup(TraitItemLinks, TraitValue)
+	local ItemCategories, OwnerInfo, ItemIdDisplayOrder = self:BuildTraitPopup(TraitItemLinks, TraitValue)
 	
 	local PreviousItemEntry = nil
-	for ItemId, ItemInfo in pairs(ItemCategories) do
+	for _, ItemId in ipairs(ItemIdDisplayOrder) do
+		local ItemInfo = ItemCategories[ItemId]
 		local DisplayIcon = ItemInfo.Icon
 		local ItemLink = ItemInfo.ItemLink
 		PreviousItemEntry = self:CreateTraitPopupItemEntry(self.TraitPopup, PreviousItemEntry, OwnerInfo[ItemId], DisplayIcon, ItemLink)

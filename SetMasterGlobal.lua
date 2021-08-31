@@ -37,6 +37,16 @@ function This.TableContains(Array, Value)
 	return false
 end
 
+function This.ArrayFind(Array, Value)
+	for i, ValueItr in ipairs(Array) do
+		if ValueItr == Value then
+			return i
+		end
+	end
+	
+	return 0
+end
+
 -- https://stackoverflow.com/questions/6075262/lua-table-tostringtablename-and-table-fromstringstringtable-functions
 function This.TableToString(val, name, skipnewlines, depth)
 	skipnewlines = skipnewlines or false

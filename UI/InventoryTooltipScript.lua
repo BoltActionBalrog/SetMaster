@@ -805,6 +805,7 @@ function This:BuildTooltip()
 	local TooltipHeader = ContentContainer:GetNamedChild("_Header")
 	local HeaderTextContainer = TooltipHeader:GetNamedChild("_TextContainer")
 	local ItemListContainer = ContentContainer:GetNamedChild("_ItemListContainer")
+	local NoItemText = ItemListContainer:GetNamedChild("_NoItemsText")
 	local SetNameText = HeaderTextContainer:GetNamedChild("_SetNameText")
 	
 	SetNameText:SetText(LibSets.GetSetName(self.ItemLinkSetId)) -- LibSets localizes this string
@@ -842,6 +843,8 @@ function This:BuildTooltip()
 	Spacer:SetWidth(1)
 	Spacer:SetHeight(10)
 	Spacer:SetAnchor(TOP, ContentContainer, BOTTOM, 0, 0)
+	
+	NoItemText:SetHidden(EntryCount ~= 0)
 	
 	self.Tooltip:SetTopmost(true)
 end

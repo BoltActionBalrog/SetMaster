@@ -45,7 +45,8 @@ local Localization = {
 	},
 	SetOwnership = 
 	{
-		UniqueSlots = "Unique Slots:"
+		UniqueSlots = "Unique Slots:",
+		NoItemsOwned = "No items owned"
 	},
 	OwnerName = 
 	{

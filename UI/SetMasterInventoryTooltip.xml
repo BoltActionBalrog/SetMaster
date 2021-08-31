@@ -92,6 +92,16 @@
 						<!-- Top level container for each entry in the owned set items list -->
 						<Control name="$(parent)_ItemListContainer" resizeToFitDescendents="true">
 							<Anchor point="TOP" relativeTo="$(parent)_Divider" relativePoint="TOP" offsetX="0" offsetY="10" />
+							
+							<Controls>
+								<Label name="$(parent)_NoItemsText" mouseEnabled="false" font="ZoFontWinH3" text="">
+									<Anchor point="TOP" relativeTo="$(parent)" relativePoint="TOP" offsetX="0" offsetY="0"/>
+									<OnInitialized>
+										self:SetText(SetMasterGlobal.LocalizeString("SetOwnership/?NoItemsOwned"))
+									</OnInitialized>
+								</Label>
+							</Controls>
+							
 						</Control>
 					</Controls>
 				

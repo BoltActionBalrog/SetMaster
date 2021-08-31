@@ -12,7 +12,7 @@ local Localization = {
 		},
 		BankShow = {
 			Name = "Bank",
-			Tooltip = "Display items stored in your account's bank."
+			Tooltip = "Display items stored in your account's bank"
 		},
 		CharacterBags = {
 			NoData = "No data! Login to this character to load bag data.",
@@ -20,7 +20,7 @@ local Localization = {
 		},
 		ShowEquipped = {
 			Name = "Equipped",
-			Tooltip = "Display items equipped this character."
+			Tooltip = "Display items equipped this character"
 		},
 		ShowBackpack = {
 			Name = "Backpack",
@@ -28,11 +28,11 @@ local Localization = {
 		},
 		CharacterDataSubmenu = {
 			Name = "Character Data",
-			Tooltip = "Manage the saved inventory data of each of your characters."
+			Tooltip = "Manage the saved inventory data of each of your characters"
 		},
 		AccountDataSubmenu = {
 			Name = "Account Data",
-			Tooltip = "Manage the data of items in your account-wide bags."
+			Tooltip = "Manage the data of items in your account-wide bags"
 		},
 		HouseBagHeader = "House Chests",
 		Name = "Name",
@@ -40,7 +40,7 @@ local Localization = {
 		HouseBagShow = 
 		{
 			Name = "Show chest",
-			Tooltip = "Display items stored in this house chest."
+			Tooltip = "Display items stored in this house chest"
 		}
 	},
 	SetOwnership = 

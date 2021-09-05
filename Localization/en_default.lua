@@ -20,7 +20,7 @@ local Localization = {
 		},
 		ShowEquipped = {
 			Name = "Equipped",
-			Tooltip = "Display items equipped this character"
+			Tooltip = "Display items equipped on this character"
 		},
 		ShowBackpack = {
 			Name = "Backpack",

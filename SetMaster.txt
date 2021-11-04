@@ -1,6 +1,6 @@
 ## Title: SetMaster
 ## Author: Bolt-Action Balrog
-## APIVersion: 101031
+## APIVersion: 101032
 ## DependsOn: LibSets LibAddonMenu-2.0
 ## OptionalDependsOn: MasterMerchant
 ## SavedVariables: SetMasterSavedOptions

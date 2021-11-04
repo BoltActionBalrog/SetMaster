@@ -130,7 +130,7 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 				if DateScanned == nil then
 					return "|c" .. NoDataColor .. Localize("Options", "CharacterBags", "NoData") .. "|"
 				end
-				return Localize("Options", "CharacterBags", "DateScanned") .. DateScanned
+				return Localize("Options", "CharacterBags", "DateScanned") .. " " .. DateScanned
 			end)(),
 			width = "full",
 		})

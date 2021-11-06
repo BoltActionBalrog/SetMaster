@@ -280,6 +280,16 @@ function This.GetMouseOverItemLink()
 	return nil, false
 end
 
+function This.IsAnyElementVisible(ElementList)
+	for _, Element in ipairs(ElementList) do
+		if Element:IsHidden() == false then
+			return true
+		end
+	end
+	
+	return false
+end
+
 function This.IsBagHouseBank(BagId)
 	return BagId >= This.HouseBankBagRange.First and BagId <= This.HouseBankBagRange.Last
 end

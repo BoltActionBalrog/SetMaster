@@ -36,6 +36,8 @@ This.TraitEntryItems = This.TraitEntryItems or {} -- Control -> {Item list}
 
 This.TraitPopup = This.TraitPopup or {}
 
+This.ParentElements = This.ParentElements or {}
+
 -- Consts
 This.ArmorSlots = This.ArmorSlots or {EQUIP_TYPE_HEAD, EQUIP_TYPE_CHEST, EQUIP_TYPE_LEGS, EQUIP_TYPE_FEET, EQUIP_TYPE_SHOULDERS, EQUIP_TYPE_HAND, EQUIP_TYPE_WAIST, EQUIP_TYPE_OFF_HAND}
 This.JewelrySlots = This.JewelrySlots or {EQUIP_TYPE_NECK, EQUIP_TYPE_RING}
@@ -1058,7 +1060,7 @@ function This:SetItemLink(ItemLink, bEquipped)
 	self.Tooltip:SetWidth(150)
 	
 	local _, SetName, _, NumEquipped, MaxEquipped, SetId = GetItemLinkSetInfo(ItemLink, bEquipped)
-	if SetId == 0 or SetId == nil then -- TODO: Verify this fixes error on out of date LibSets
+	if SetId == 0 or SetId == nil then
 		-- The item doesn't belong to a set or LibSets doesn't have the set (if nil).
 		self:HideTooltip()
 		return
@@ -1091,6 +1093,14 @@ function This:OnItemDataAdded(Control, TooltipEventNumber)
 		-- I don't know why.
 		return
 	end
+	
+	if SetMasterGlobal.IsAnyElementVisible(self.ParentElements) == false then
+		-- This is a fix for a performance-dependant bug where the UI will close but the tooltip remains open.
+		-- The game is firing OnItemDataAdded after the UI element gets closed.
+		-- So don't open the tooltip if none of the UI elements that could instigate the tooltip are open.
+		return
+	end
+	
 	local MouseOverItemLink, bEquipped = SetMasterGlobal.GetMouseOverItemLink()
 	self.MouseOverInstigator = moc()
 	This:SetItemLink(MouseOverItemLink, bEquipped)
@@ -1146,6 +1156,8 @@ function This:OnElementHidden(Element)
 end
 
 function This:SubscribeToElementHidden(Element)
+	table.insert(self.ParentElements, Element)
+
 	ZO_PreHookHandler(Element, 'OnHide', function()
 		self:OnElementHidden(Element)
 	end)

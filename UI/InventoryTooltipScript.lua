@@ -650,7 +650,7 @@ function This:BuildSetInfo()
 		-- Item was a set item but we don't have the SetId map built.
 		-- Means LibSets is out of date.
 		self:HideTooltip()
-		return
+		return false
 	end
 	
 	local Database = PlayerSetDatabase.ItemDatabase
@@ -678,6 +678,8 @@ function This:BuildSetInfo()
 			end
 		end
 	end
+	
+	return true
 end
 
 function This:GetWeaponTypeIcon(ItemLink, WeaponType)
@@ -816,7 +818,10 @@ function This:BuildTooltip()
 	ResetElementSize(ItemListContainer)
 	ResetElementSize(ContentContainer)
 	
-	self:BuildSetInfo()
+	local bSetInfoBuildSuccess = self:BuildSetInfo()
+	if bSetInfoBuildSuccess == false then
+		return
+	end
 	
 	local ContainerConst = SetMasterInventoryTooltip_Content_ItemListContainer
 	local PreviousEntry = ContainerConst

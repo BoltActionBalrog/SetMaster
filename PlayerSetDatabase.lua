@@ -230,7 +230,7 @@ function This:DeleteCharacter(CharacterName)
 	
 	for CharacterId, CharacterData in pairs(self.Characters) do
 		if CharacterName == SanitizeCharacterName(CharacterData.Name) then
-			d("Deleted Character: " .. CharacterName)
+			d("Set Master deleted character: " .. CharacterName)
 			self.Characters[CharacterId] = nil
 			return
 		end
@@ -291,6 +291,9 @@ function This:Initialize()
 		local NewCharacterEntry = self.Characters[CharacterId]
 		if NewCharacterEntry == nil then
 			-- Delete any character's data that itself got deleted
+			self:ClearOwnerData(self.GetCharacterName(CharacterData))
+		elseif CharacterData.Name ~= NewCharacterEntry.Name then
+			-- Character was renamed. Delete the old name's data.
 			self:ClearOwnerData(self.GetCharacterName(CharacterData))
 		else
 			if CharacterId ~= CurrentCharacterId then

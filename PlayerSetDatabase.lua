@@ -122,9 +122,17 @@ function This:RemoveItem(BagId, SlotIndex, ItemLink)
 	for KeyItr, ItemLinkItr in pairs(ItemList) do
 		if AreItemLinksIdentical(ItemLinkItr.ItemLink, ItemLink) then
 			table.remove(ItemList, KeyItr)
+			
 			if SetMasterGlobal.IsTableEmpty(ItemList) then
 				ItemTable[OwnerString][BagId] = nil
 			end
+			if SetMasterGlobal.IsTableEmpty(ItemTable[OwnerString]) then
+				self.ItemDatabase[ItemId][OwnerString] = nil
+			end
+			if SetMasterGlobal.IsTableEmpty(ItemTable) then
+				self.ItemDatabase[ItemId] = nil
+			end
+			
 			bFoundItem = true
 			break
 		end

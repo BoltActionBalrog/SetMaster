@@ -13,6 +13,9 @@ Localization/$(language).lua
 Options.lua
 
 PlayerSetDatabase.lua
+
+SaveDataUpdater.lua
+
 ChatCommands.lua
 
 UI/InventoryTooltipScript.lua

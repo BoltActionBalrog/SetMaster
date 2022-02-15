@@ -8,6 +8,7 @@ local DependenciesRetryCount = 0
 -- Called a bit after everything loads so that we can make use of debug printing
 local function InitializeDelayed()
 	SetMasterOptions:Initialize()
+	SaveDataUpdater:UpdateData()
 	PlayerSetDatabase:Initialize()
 	InventoryTooltipScript:Initialize()
 	

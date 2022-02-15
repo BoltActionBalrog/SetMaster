@@ -135,6 +135,18 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 			width = "full",
 		})
 	table.insert(CharacterSubmenuControls, {
+			type = "description",
+			title = nil,
+			text = (function() 
+				local Megaserver = CharacterData.Megaserver
+				if Megaserver == nil then
+					return "|c" .. NoDataColor .. Localize("Options", "MegaserverInfo", "NoData") .. "|"
+				end
+				return Megaserver
+			end)(),
+			width = "full",
+		})
+	table.insert(CharacterSubmenuControls, {
 		type = "checkbox",
 		name = Localize("Options", "ShowEquipped", "Name"),
 		tooltip = Localize("Options", "ShowEquipped", "Tooltip"),

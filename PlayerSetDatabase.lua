@@ -27,6 +27,10 @@ function This:IsAccountBag(BagId)
 	return false
 end
 
+function This:IsHouseBag(BagId)
+	return BagId >= BAG_HOUSE_BANK_ONE and BagId <= BAG_HOUSE_BANK_TEN
+end
+
 function This:IsCharacterBag(BagId)
 	for _, CharacterBagId in ipairs(CharacterBagConsts) do
 		if CharacterBagId == BagId then
@@ -107,6 +111,10 @@ function This:GetBagOwnerString(BagId)
 	if self:IsAccountBag(BagId) then
 		return SetMasterGlobal.GetAccountOwnerName()
 	end
+	if self:IsHouseBag(BagId) then
+		return SetMasterGlobal.GetHouseOwnerName()
+	end
+	
 	local CurrentCharacterId = GetCurrentCharacterId()
 	local CurrentCharacter = self.Characters[CurrentCharacterId]
 	return self.GetCharacterName(CurrentCharacter)
@@ -200,7 +208,9 @@ function This:OnSlotChanged()
 end
 
 function This:UpdateBagSlot(BagId, SlotIndex, StackCountChange)
-	if self:IsCharacterBag(BagId) == false and self:IsAccountBag(BagId) == false then
+	if self:IsCharacterBag(BagId) == false 
+			and self:IsAccountBag(BagId) == false 
+			and self:IsHouseBag(BagId) == false then
 		return
 	end
 	
@@ -295,10 +305,14 @@ function This:Initialize()
 	self:LoadCharacters()
 	
 	local CurrentCharacterId = GetCurrentCharacterId()
+	local CurrentMegaserver = GetWorldName()
 	for CharacterId, CharacterData in pairs(OldCharacters) do
 		local NewCharacterEntry = self.Characters[CharacterId]
-		if NewCharacterEntry == nil then
+		if NewCharacterEntry == nil 
+				and CharacterData.Megaserver == CurrentMegaserver then
 			-- Delete any character's data that itself got deleted
+			-- We check megaserver equivalence because a character on a different megaserver will not be found
+			-- but we want to preserve its data
 			self:ClearOwnerData(self.GetCharacterName(CharacterData))
 		elseif CharacterData.Name ~= NewCharacterEntry.Name then
 			-- Character was renamed. Delete the old name's data.
@@ -307,11 +321,14 @@ function This:Initialize()
 			if CharacterId ~= CurrentCharacterId then
 				-- Copy the data from the old character entry that isn't rebuilt upon loading a different character
 				NewCharacterEntry.DateScanned = CharacterData.DateScanned
+				NewCharacterEntry.Megaserver = CharacterData.Megaserver
 			end
 			
 			NewCharacterEntry.IgnoredBags = CharacterData.IgnoredBags
 		end
 	end
+	
+	self.Characters[CurrentCharacterId].Megaserver = CurrentMegaserver
 	
 	SetMasterOptions:GetOptions().Characters = self.Characters -- Save the new character list
 	

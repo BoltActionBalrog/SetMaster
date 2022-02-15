@@ -1,10 +1,12 @@
 SetMasterGlobal = {}
 local This = SetMasterGlobal
 
+This.DataVersion = 1 -- Integer that increments each time we need to update saved data
+
 This.Namespace = This.Namespace  or "SetMaster"
 
 This.Version = "1.0"
-This.SaveDataVersion = 1
+This.SaveDataVersion = 1 -- Data version given to ZO's NewAccountWide. DO NOT INCREMENT
 
 This.HouseBankBagRange = This.HouseBankBagRange  or { First = BAG_HOUSE_BANK_ONE, Last = BAG_HOUSE_BANK_TEN }
 

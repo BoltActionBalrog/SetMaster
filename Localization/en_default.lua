@@ -18,6 +18,9 @@ local Localization = {
 			NoData = "No data! Login to this character to load bag data.",
 			DateScanned = "Date scanned:"
 		},
+		MegaserverInfo = {
+			NoData = "Unknown Megaserver! Login to this character to load the megaserver."
+		},
 		ShowEquipped = {
 			Name = "Equipped",
 			Tooltip = "Display items equipped on this character"

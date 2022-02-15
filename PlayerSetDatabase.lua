@@ -17,6 +17,10 @@ local CharacterBagConsts = {BAG_BACKPACK, BAG_WORN}
 local AccountBagConsts = {BAG_BANK, BAG_SUBSCRIBER_BANK}
 local HouseBagConsts
 
+function This:GetMegaserverTable()
+	return self.ItemDatabase[GetWorldName()]
+end
+
 function This:IsAccountBag(BagId)
 	for _, AccountBagId in ipairs(AccountBagConsts) do
 		if AccountBagId == BagId then
@@ -125,7 +129,8 @@ function This:RemoveItem(BagId, SlotIndex, ItemLink)
 	local OwnerString = self:GetBagOwnerString(BagId)
 	
 	local bFoundItem = false
-	local ItemTable = self.ItemDatabase[ItemId]
+	local ServerTable = self:GetMegaserverTable()
+	local ItemTable = ServerTable[ItemId]
 	local ItemList = ItemTable[OwnerString][BagId]
 	for KeyItr, ItemLinkItr in pairs(ItemList) do
 		if AreItemLinksIdentical(ItemLinkItr.ItemLink, ItemLink) then
@@ -135,10 +140,10 @@ function This:RemoveItem(BagId, SlotIndex, ItemLink)
 				ItemTable[OwnerString][BagId] = nil
 			end
 			if SetMasterGlobal.IsTableEmpty(ItemTable[OwnerString]) then
-				self.ItemDatabase[ItemId][OwnerString] = nil
+				ServerTable[ItemId][OwnerString] = nil
 			end
 			if SetMasterGlobal.IsTableEmpty(ItemTable) then
-				self.ItemDatabase[ItemId] = nil
+				ServerTable[ItemId] = nil
 			end
 			
 			bFoundItem = true
@@ -161,7 +166,7 @@ local function StoreItemIfSetItem(ItemLink, BagId, SlotIndex, OwnerString)
 	local AddOrGet = SetMasterGlobal.AddOrGetTableElement
 	local ItemId = GetItemLinkItemId(ItemLink)
 	
-	local ItemEntry = AddOrGet(PlayerSetDatabase.ItemDatabase, ItemId, {})
+	local ItemEntry = AddOrGet(PlayerSetDatabase:GetMegaserverTable(), ItemId, {})
 	local OwnerEntry = AddOrGet(ItemEntry, OwnerString, {})
 	local BagEntry = AddOrGet(OwnerEntry, BagId, {})
 	table.insert(BagEntry, {ItemLink = ItemLink})
@@ -234,7 +239,7 @@ function This:OnInventorySlotUpdate(EventCode, BagId, SlotIndex, bNewItem, ItemS
 end
 
 function This:ClearOwnerData(OwnerString)
-	for _, ItemOwners in pairs(self.ItemDatabase) do
+	for _, ItemOwners in pairs(self:GetMegaserverTable()) do
 		for ItemOwner, _ in pairs(ItemOwners) do
 			if ItemOwner == OwnerString then
 				ItemOwners[OwnerString] = nil
@@ -298,6 +303,11 @@ end
 
 function This:Initialize()
 	self.ItemDatabase = SetMasterOptions:GetOptions().ItemDatabase
+	
+	if self:GetMegaserverTable() == nil then
+		self.ItemDatabase[GetWorldName()] = {}
+	end
+	
 	local OldCharacters = SetMasterOptions:GetOptions().Characters
 	
 	PopulateBagValues()
@@ -308,17 +318,22 @@ function This:Initialize()
 	local CurrentMegaserver = GetWorldName()
 	for CharacterId, CharacterData in pairs(OldCharacters) do
 		local NewCharacterEntry = self.Characters[CharacterId]
-		if NewCharacterEntry == nil 
-				and CharacterData.Megaserver == CurrentMegaserver then
-			-- Delete any character's data that itself got deleted
-			-- We check megaserver equivalence because a character on a different megaserver will not be found
-			-- but we want to preserve its data
-			self:ClearOwnerData(self.GetCharacterName(CharacterData))
-		elseif CharacterData.Name ~= NewCharacterEntry.Name then
-			-- Character was renamed. Delete the old name's data.
-			self:ClearOwnerData(self.GetCharacterName(CharacterData))
-		else
-			if CharacterId ~= CurrentCharacterId then
+		if NewCharacterEntry == nil then
+			if CharacterData.Megaserver == CurrentMegaserver then
+				-- Delete any character's data that itself got deleted
+				-- We check megaserver equivalence because a character on a different megaserver will not be found
+				-- but we want to preserve its data
+				self:ClearOwnerData(self.GetCharacterName(CharacterData))
+			else
+				-- The old character entry belongs to the other megaserver. Copy it so we don't delete it.
+				self.Characters[CharacterId] = CharacterData
+			end
+		elseif NewCharacterEntry ~= nil then
+			if CharacterData.Name ~= NewCharacterEntry.Name then
+				-- Character was renamed. Delete the old name's data.
+				self:ClearOwnerData(self.GetCharacterName(CharacterData))
+				
+			elseif CharacterId ~= CurrentCharacterId then
 				-- Copy the data from the old character entry that isn't rebuilt upon loading a different character
 				NewCharacterEntry.DateScanned = CharacterData.DateScanned
 				NewCharacterEntry.Megaserver = CharacterData.Megaserver

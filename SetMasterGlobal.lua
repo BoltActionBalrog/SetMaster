@@ -1,7 +1,7 @@
 SetMasterGlobal = {}
 local This = SetMasterGlobal
 
-This.DataVersion = 1 -- Integer that increments each time we need to update saved data
+This.DataVersion = 2 -- Integer that increments each time we need to update saved data
 
 This.Namespace = This.Namespace  or "SetMaster"
 

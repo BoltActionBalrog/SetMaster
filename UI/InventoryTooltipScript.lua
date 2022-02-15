@@ -653,7 +653,7 @@ function This:BuildSetInfo()
 		return false
 	end
 	
-	local Database = PlayerSetDatabase.ItemDatabase
+	local Database = PlayerSetDatabase:GetMegaserverTable()
 	local IsBagIgnored = PlayerSetDatabase.IsBagIgnored
 	self:ResetSetInfo()
 	for ItemId, _ in pairs(SetItemIds) do
@@ -756,7 +756,7 @@ function This:BuildTraitPopup(TraitItemLinks, TargetTraitValue)
 	local IsBagIgnored = PlayerSetDatabase.IsBagIgnored
 	for ItemId, DisplayItemId in pairs(ItemIdReplacements) do
 		
-		local OwnerList = PlayerSetDatabase.ItemDatabase[ItemId]
+		local OwnerList = PlayerSetDatabase:GetMegaserverTable()[ItemId]
 		
 		-- Replace the ItemId if it's a reconstruced duplicate
 		local DisplayItemId = ItemIdReplacements[ItemId] or ItemId

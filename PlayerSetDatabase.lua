@@ -21,6 +21,10 @@ function This:GetMegaserverTable()
 	return self.ItemDatabase[GetWorldName()]
 end
 
+function This:GetMegaserverCharacters()
+	return self.Characters[GetWorldName()]
+end
+
 function This:IsAccountBag(BagId)
 	for _, AccountBagId in ipairs(AccountBagConsts) do
 		if AccountBagId == BagId then
@@ -76,10 +80,12 @@ local function AreItemLinksIdentical(Link1, Link2)
 end
 
 function This:LoadCharacters()
+	self.Characters[GetWorldName()] = {}
+	local ServerCharacters = self:GetMegaserverCharacters()
 	for CharacterIndex in SetMasterGlobal.Range(1, GetNumCharacters()) do
 	local Name, _, _, _, _, _, CharacterId, _ = GetCharacterInfo(CharacterIndex)
 		local CharacterData = {Name = Name, IgnoredBags = {}}
-		self.Characters[CharacterId] = CharacterData
+		ServerCharacters[CharacterId] = CharacterData
 	end
 end
 
@@ -98,7 +104,7 @@ end
 function This:IsBagIgnored(BagId, OwnerString)
 	local CharacterId = SanitizedCharacterNames[OwnerString]
 	if CharacterId ~= nil then
-		local CharacterData = self.Characters[CharacterId]
+		local CharacterData = self:GetMegaserverCharacters()[CharacterId]
 		return self.IsCharacterBagIgnored(CharacterData, BagId)
 	else
 		return self.IsAccountBagIgnored(BagId)
@@ -120,7 +126,7 @@ function This:GetBagOwnerString(BagId)
 	end
 	
 	local CurrentCharacterId = GetCurrentCharacterId()
-	local CurrentCharacter = self.Characters[CurrentCharacterId]
+	local CurrentCharacter = self:GetMegaserverCharacters()[CurrentCharacterId]
 	return self.GetCharacterName(CurrentCharacter)
 end
 
@@ -251,10 +257,11 @@ end
 function This:DeleteCharacter(CharacterName)
 	self:ClearOwnerData(CharacterName)
 	
-	for CharacterId, CharacterData in pairs(self.Characters) do
+	local ServerCharacters = self:GetMegaserverCharacters()
+	for CharacterId, CharacterData in pairs(ServerCharacters) do
 		if CharacterName == SanitizeCharacterName(CharacterData.Name) then
 			d("Set Master deleted character: " .. CharacterName)
-			self.Characters[CharacterId] = nil
+			ServerCharacters[CharacterId] = nil
 			return
 		end
 	end
@@ -284,7 +291,7 @@ end
 
 function This:LoadCurrentCharacterSetItems()
 	local CurrentCharacterId = GetCurrentCharacterId()
-	local CurrentCharacter = self.Characters[CurrentCharacterId]
+	local CurrentCharacter = self:GetMegaserverCharacters()[CurrentCharacterId]
 	if CurrentCharacter == nil then
 		d("SetMaster Error: Unloaded character id: '" .. CurrentCharacterId .. "'")
 		return
@@ -309,6 +316,9 @@ function This:Initialize()
 	end
 	
 	local OldCharacters = SetMasterOptions:GetOptions().Characters
+	if OldCharacters[GetWorldName()] == nil then
+		OldCharacters[GetWorldName()] = {}
+	end
 	
 	PopulateBagValues()
 	
@@ -316,19 +326,13 @@ function This:Initialize()
 	
 	local CurrentCharacterId = GetCurrentCharacterId()
 	local CurrentMegaserver = GetWorldName()
-	for CharacterId, CharacterData in pairs(OldCharacters) do
-		local NewCharacterEntry = self.Characters[CharacterId]
+	local CurrentCharacters = self:GetMegaserverCharacters()
+	for CharacterId, CharacterData in pairs(OldCharacters[CurrentMegaserver]) do
+		local NewCharacterEntry = CurrentCharacters[CharacterId]
 		if NewCharacterEntry == nil then
-			if CharacterData.Megaserver == CurrentMegaserver then
-				-- Delete any character's data that itself got deleted
-				-- We check megaserver equivalence because a character on a different megaserver will not be found
-				-- but we want to preserve its data
-				self:ClearOwnerData(self.GetCharacterName(CharacterData))
-			else
-				-- The old character entry belongs to the other megaserver. Copy it so we don't delete it.
-				self.Characters[CharacterId] = CharacterData
-			end
-		elseif NewCharacterEntry ~= nil then
+			-- Delete any deleted character's data on our megaserver.
+			self:ClearOwnerData(self.GetCharacterName(CharacterData))
+		else
 			if CharacterData.Name ~= NewCharacterEntry.Name then
 				-- Character was renamed. Delete the old name's data.
 				self:ClearOwnerData(self.GetCharacterName(CharacterData))
@@ -343,12 +347,17 @@ function This:Initialize()
 		end
 	end
 	
-	self.Characters[CurrentCharacterId].Megaserver = CurrentMegaserver
+	-- Save characters from other megaservers
+	for MegaserverName, ServerCharacters in pairs(OldCharacters) do
+		if MegaserverName ~= CurrentMegaserver then
+			self.Characters[MegaserverName] = ServerCharacters
+		end
+	end
 	
 	SetMasterOptions:GetOptions().Characters = self.Characters -- Save the new character list
 	
 	-- Save a lookup table from character name to character id.
-	for CharacterId, CharacterData in pairs(self.Characters) do
+	for CharacterId, CharacterData in pairs(CurrentCharacters) do
 		local SanitizedName = self.GetCharacterName(CharacterData)
 		SanitizedCharacterNames[SanitizedName] = CharacterId
 	end

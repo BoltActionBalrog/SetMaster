@@ -54,17 +54,27 @@ local function Update2(Options)
 		end
 	end
 
-	-- Place the current megaserver's name as a key at the root of the item database.
-	local MegaserverName = GetWorldName()
-	local TransferTable = {}
+	-- Key the item database to the current megaserver.
+	local ItemDatabaseTemp = {}
 	for ItemId, OwnerInfo in pairs(Options.ItemDatabase) do
-		TransferTable[ItemId] = OwnerInfo
+		ItemDatabaseTemp[ItemId] = OwnerInfo
 	end
 	
 	Options.ItemDatabase = {}
-	Options.ItemDatabase[MegaserverName] = TransferTable
+	Options.ItemDatabase[GetWorldName()] = ItemDatabaseTemp
 end
 This:RegisterUpdateFunction(2, Update2)
+
+local function UpdateCharacterData(Options)
+	-- Key character data to the current megaserver
+	local CharacterTemp = {}
+	for CharacterId, CharacterData in pairs(Options.Characters) do
+		CharacterTemp[CharacterId] = CharacterData
+	end
+	Options.Characters = {}
+	Options.Characters[GetWorldName()] = CharacterTemp
+end
+This:RegisterUpdateFunction(3, UpdateCharacterData)
 
 function This:UpdateData()
 	local Options = SetMasterOptions:GetOptions()

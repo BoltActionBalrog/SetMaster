@@ -116,7 +116,7 @@ local function SetCharacterBagUsed(CharacterData, BagId, bUseBag)
 	end
 end
 
-local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, CharacterSubmenuControls)
+local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, MegaserverName, CharacterSubmenuControls)
 	table.insert(CharacterSubmenuControls, {
 			type = "header",
 			name = PlayerSetDatabase.GetCharacterName(CharacterData),
@@ -138,7 +138,7 @@ local function CreateCharacterMenuEntry(CharacterIndex, CharacterData, Character
 			type = "description",
 			title = nil,
 			text = (function() 
-				local Megaserver = CharacterData.Megaserver
+				local Megaserver = MegaserverName
 				if Megaserver == nil then
 					return "|c" .. NoDataColor .. Localize("Options", "MegaserverInfo", "NoData") .. "|"
 				end
@@ -234,21 +234,23 @@ function This:CreateAccountMenuEntries(AccountSubmenuControls)
 end
 
 function This:Finalize()
-	local Characters = PlayerSetDatabase.Characters
+	local CharacterTable = PlayerSetDatabase.Characters
 	
-	-- Sort characters by character id so there's a deterministic ordering in the menu
-	local CharacterIds = {}
-	for CharacterId, CharacterData in pairs(Characters) do
-		table.insert(CharacterIds, CharacterId)
-	end
-	table.sort(CharacterIds, function(a, b) 
-		return tonumber(a) < tonumber(b)
-	end)
-	
-	local CharacterDataSubmenu = Options[OptionIndicies.CharacterData]
-	for _, CharacterId in ipairs(CharacterIds) do
-		local CharacterData = Characters[CharacterId]
-		CreateCharacterMenuEntry(CharacterId, CharacterData, CharacterDataSubmenu.controls)
+	-- Sort characters by megaserver then character id so there's a deterministic ordering in the menu
+	for MegaserverName, ServerCharacters in pairs(CharacterTable) do
+		local CharacterIds = {}
+		for CharacterId, CharacterData in pairs(ServerCharacters) do
+			table.insert(CharacterIds, CharacterId)
+		end
+		table.sort(CharacterIds, function(a, b) 
+			return tonumber(a) < tonumber(b)
+		end)
+		
+		local CharacterDataSubmenu = Options[OptionIndicies.CharacterData]
+		for _, CharacterId in ipairs(CharacterIds) do
+			local CharacterData = ServerCharacters[CharacterId]
+			CreateCharacterMenuEntry(CharacterId, CharacterData, MegaserverName, CharacterDataSubmenu.controls)
+		end
 	end
 	
 	local AccountDataSubmenu = Options[OptionIndicies.AccountData]

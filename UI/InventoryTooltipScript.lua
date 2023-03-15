@@ -122,7 +122,8 @@ function This:InitializeQualityColors()
 end
 
 local function ResetElementSize(Element)
-	Element:SetDimensions(1, 1)
+	Element:SetResizeToFitDescendents(false)
+	Element:SetResizeToFitDescendents(true)
 end
 
 local function SetPieceEntryFactory(Pool)
@@ -848,7 +849,7 @@ function This:BuildTooltip()
 	Spacer = self:AcquireSpacer()
 	Spacer:SetParent(self.Tooltip)
 	Spacer:SetWidth(1)
-	Spacer:SetHeight(10)
+	Spacer:SetHeight(7)
 	Spacer:SetAnchor(TOP, ContentContainer, BOTTOM, 0, 0)
 	
 	NoItemText:SetHidden(EntryCount ~= 0)
@@ -1061,8 +1062,7 @@ function This:SetItemLink(ItemLink, bEquipped)
 		return
 	end
 	
-	self.Tooltip:SetHeight(1)
-	self.Tooltip:SetWidth(150)
+	ResetElementSize(self.Tooltip)
 	
 	local _, SetName, _, NumEquipped, MaxEquipped, SetId = GetItemLinkSetInfo(ItemLink, bEquipped)
 	if SetId == 0 or SetId == nil then
@@ -1121,7 +1121,7 @@ function This:ShowHoverTooltip(Control, LocKey)
 	local HoverTooltipText = HoverTooltip:GetNamedChild("_Text")
 	
 	HoverTooltipText:SetText(LocalizedText)
-	HoverTooltip:SetDimensions(1,1)
+	ResetElementSize(HoverTooltip)
 	HoverTooltip:ClearAnchors()
 	HoverTooltip:SetAnchor(BOTTOM, Control, TOP, 0, 0)
 	HoverTooltip:BringWindowToTop()

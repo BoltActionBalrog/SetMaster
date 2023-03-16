@@ -1027,7 +1027,7 @@ function This:ShowTraitPopup(TraitControl)
 	
 	local ItemBox = Content:GetNamedChild("_ItemBox")
 	
-	self.TraitPopup:SetHeight(1)
+	ResetElementSize(self.TraitPopup)
 	
 	local ItemCategories, OwnerInfo, ItemIdDisplayOrder = self:BuildTraitPopup(TraitItemLinks, TraitValue)
 	
